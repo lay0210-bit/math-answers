@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>일일 연산 수학 - 맞춤 연산 문제지</title>
-    <!-- 고품질 QR 라이브러리 -->
+    <!-- QR 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
@@ -15,10 +15,10 @@
             --text-main: #0f172a;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Malgun Gothic", "맑은 고딕", sans-serif; }
         body { background: #cbd5e1; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* 좌측 사이드바 */
+        /* 좌측 단원 선택 사이드바 */
         #sidebar {
             width: 320px;
             background: #ffffff;
@@ -65,12 +65,12 @@
             border: 1px solid transparent;
             border-radius: 8px;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
         }
         .unit-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-        .unit-btn.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
+        .unit-btn.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: 800; }
 
         /* 우측 영역 */
         #main-content {
@@ -116,7 +116,7 @@
         .btn-print { background: var(--primary); color: #ffffff; }
         .btn-print:hover { background: var(--primary-dark); }
 
-        /* A4 시험지 영역 */
+        /* 사진 원본 A4 정밀 규격 (210mm x 297mm) */
         .sheet-container {
             flex: 1;
             padding: 30px;
@@ -129,56 +129,65 @@
             height: 297mm;
             background: #ffffff;
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            padding: 20mm 20mm 20mm 20mm;
+            padding: 24mm 19mm 22mm 19mm; /* 원본 사진 완벽 여백 */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
         }
 
+        /* 헤더: 구분선 없이 사진 원본 그대로 */
         .sheet-header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 22px;
+        }
+
+        .sheet-header-left {
+            display: flex;
             align-items: center;
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: 12px;
-            margin-bottom: 18px;
+            gap: 10px;
+            margin-top: 14px;
         }
 
-        .sheet-header-left { display: flex; align-items: center; gap: 12px; }
-        .sheet-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; }
+        .sheet-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: -0.5px;
+        }
+
         .sheet-badge {
-            background: #0f172a;
+            background: #1e293b;
             color: #ffffff;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 700;
-            padding: 5px 12px;
-            border-radius: 6px;
+            padding: 4px 10px;
+            border-radius: 5px;
         }
 
-        /* 넉넉한 화이트존 확보한 QR 박스 */
-        .qr-box-outer {
+        /* 큼직하고 단순한 QR 코드 (사진과 동일한 위치/크기) */
+        .qr-wrapper {
             background: #ffffff;
-            padding: 6px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
+            padding: 0;
             display: inline-block;
         }
         #qrcode {
-            width: 88px;
-            height: 88px;
+            width: 76px;
+            height: 76px;
         }
         #qrcode img, #qrcode canvas {
             display: block;
-            width: 88px !important;
-            height: 88px !important;
+            width: 76px !important;
+            height: 76px !important;
         }
 
-        /* 20문제 배치 (줄간격 78px 상하 대칭) */
+        /* 문제 20개 레이아웃 (줄간격 72px, 좌우 간격 사진과 완벽 일치) */
         .sheet-problems {
             flex: 1;
             display: grid;
-            grid-template-rows: repeat(10, 78px);
+            grid-template-rows: repeat(10, 72px);
             grid-auto-flow: column;
             column-gap: 55px;
             align-content: space-between;
@@ -187,7 +196,7 @@
         .prob-row {
             display: flex;
             align-items: center;
-            font-size: 1.25rem;
+            font-size: 1.15rem; /* 사진과 동일한 또렷한 글씨 크기 */
             font-weight: 700;
             color: #000000;
         }
@@ -196,13 +205,13 @@
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            width: 25px;
-            height: 25px;
-            border: 1.6px solid #000;
+            width: 24px;
+            height: 24px;
+            border: 1.4px solid #000000;
             border-radius: 50%;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 800;
-            margin-right: 14px;
+            margin-right: 13px;
             flex-shrink: 0;
         }
 
@@ -214,15 +223,11 @@
             .sheet-container { padding: 0 !important; margin: 0 !important; }
             .a4-paper {
                 box-shadow: none !important;
-                padding: 18mm 18mm 18mm 18mm !important;
+                padding: 24mm 19mm 22mm 19mm !important;
                 width: 210mm !important;
                 height: 297mm !important;
                 page-break-after: avoid;
                 page-break-inside: avoid;
-            }
-            .qr-box-outer {
-                border: none !important;
-                padding: 0 !important;
             }
             @page {
                 size: A4 portrait;
@@ -263,7 +268,7 @@
                         <span class="sheet-title" id="paperTitle">&lt;4학년 2학기&gt;</span>
                         <span class="sheet-badge" id="paperBadge">[심화]</span>
                     </div>
-                    <div class="qr-box-outer">
+                    <div class="qr-wrapper">
                         <div id="qrcode"></div>
                     </div>
                 </div>
@@ -276,6 +281,18 @@
     <script>
         let currentUnit = '4-2-adv';
         const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        // 초소형 압축 문자셋 (URL 단축용)
+        const B64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+        function numToB64(n) {
+            if (n === 0) return "0";
+            let s = "";
+            while (n > 0) {
+                s = B64[n % 64] + s;
+                n = Math.floor(n / 64);
+            }
+            return s;
+        }
 
         function selectUnit(e, unitKey) {
             currentUnit = unitKey;
@@ -299,73 +316,73 @@
         }
 
         function getProblem(unitKey, idx) {
-            let prob = '', ans = '';
+            let prob = '', ansCode = '';
 
             if (unitKey === '4-2-adv') {
                 if (idx <= 3) {
                     let a = rand(200, 850), b = rand(20, 95);
                     prob = `${a} × ${b} =`;
-                    ans = `${a * b}`;
+                    ansCode = numToB64(a * b);
                 } else if (idx === 4) {
                     let a = [12, 14, 15, 16, 24, 25][rand(0, 5)], b = [4, 5, 6, 8][rand(0, 3)], c = rand(150, 350);
                     prob = `${a} × ${b} × ${c} =`;
-                    ans = `${a * b * c}`;
+                    ansCode = numToB64(a * b * c);
                 } else if (idx === 5) {
                     let a = rand(2500, 7500), b = rand(30, 85);
                     prob = `${a} × ${b} =`;
-                    ans = `${a * b}`;
+                    ansCode = numToB64(a * b);
                 } else if (idx <= 10) {
                     let b = rand(25, 88), q = rand(4, 25), r = rand(0, b - 1);
                     let a = (b * q) + r;
                     prob = `${a} ÷ ${b} =`;
-                    ans = r > 0 ? `${q} … ${r}` : `${q}`;
+                    ansCode = r > 0 ? `${numToB64(q)}r${numToB64(r)}` : numToB64(q);
                 } else if (idx === 11) {
                     let a = rand(500, 899), b = rand(400, 799), c = rand(200, 550);
                     prob = `${a} + ${b} - ${c} =`;
-                    ans = `${a + b - c}`;
+                    ansCode = numToB64(a + b - c);
                 } else if (idx <= 14) {
                     let a = rand(3500, 6500), b = rand(500, 890), c = rand(400, 890);
                     prob = `${a} - ${b} + ${c} =`;
-                    ans = `${a - b + c}`;
+                    ansCode = numToB64(a - b + c);
                 } else if (idx <= 17) {
                     let a = rand(6000, 8500), b = rand(1200, 3200), c = rand(1500, 2800);
                     prob = `${a} - (${b} + ${c}) =`;
-                    ans = `${a - (b + c)}`;
+                    ansCode = numToB64(a - (b + c));
                 } else {
                     let a = rand(42000, 78000), b = rand(15000, 28000), c = rand(12000, 24000);
                     prob = `${a.toLocaleString()} - ${b.toLocaleString()} + ${c.toLocaleString()} =`;
-                    ans = `${a - b + c}`;
+                    ansCode = numToB64(a - b + c);
                 }
             } else if (unitKey === '4-2-mul') {
                 let a = rand(150, 950), b = rand(15, 95);
                 prob = `${a} × ${b} =`;
-                ans = `${a * b}`;
+                ansCode = numToB64(a * b);
             } else if (unitKey === '4-2-div') {
                 let b = rand(15, 85), q = rand(5, 30), r = rand(0, b - 1);
                 let a = (b * q) + r;
                 prob = `${a} ÷ ${b} =`;
-                ans = r > 0 ? `${q} … ${r}` : `${q}`;
+                ansCode = r > 0 ? `${numToB64(q)}r${numToB64(r)}` : numToB64(q);
             } else if (unitKey === '4-2-mix') {
                 let a = rand(2000, 8000), b = rand(500, 1800), c = rand(300, 1200);
                 prob = `${a} - (${b} + ${c}) =`;
-                ans = `${a - (b + c)}`;
+                ansCode = numToB64(a - (b + c));
             } else {
                 let a = rand(40000, 80000), b = rand(10000, 30000), c = rand(5000, 15000);
                 prob = `${a.toLocaleString()} + ${b.toLocaleString()} - ${c.toLocaleString()} =`;
-                ans = `${a + b - c}`;
+                ansCode = numToB64(a + b - c);
             }
 
-            return { prob, ans };
+            return { prob, ansCode };
         }
 
         function generateSheet() {
             const container = document.getElementById('problemContainer');
             container.innerHTML = '';
-            let rawAnswers = [];
+            let compressedTokens = [];
 
             for (let i = 1; i <= 20; i++) {
-                const { prob, ans } = getProblem(currentUnit, i);
-                rawAnswers.push(ans);
+                const { prob, ansCode } = getProblem(currentUnit, i);
+                compressedTokens.push(ansCode);
 
                 const div = document.createElement('div');
                 div.className = 'prob-row';
@@ -373,20 +390,20 @@
                 container.appendChild(div);
             }
 
-            // QR코드 생성
+            // QR코드 생성 (초압축 URL로 도트 밀도를 1/3 수준으로 대폭 축소)
             const qrBox = document.getElementById('qrcode');
             qrBox.innerHTML = '';
 
-            const ansParam = encodeURIComponent(rawAnswers.join('|'));
-            const answerUrl = `https://lay0210-bit.github.io/math-answers/viewer.html?a=${ansParam}&u=${currentUnit}`;
+            const shortData = compressedTokens.join('.');
+            const answerUrl = `https://lay0210-bit.github.io/math-answers/viewer.html?d=${shortData}`;
 
             new QRCode(qrBox, {
                 text: answerUrl,
-                width: 88,
-                height: 88,
+                width: 76,
+                height: 76,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
+                correctLevel: QRCode.CorrectLevel.L // 가장 큼직하고 단순한 왕도트
             });
         }
 
