@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>일일 연산 수학 - 맞춤 연산 문제지</title>
-    <!-- QR 라이브러리 -->
+    <!-- 고품질 QR 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
@@ -142,7 +142,7 @@
             align-items: center;
             border-bottom: 2px solid #0f172a;
             padding-bottom: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .sheet-header-left { display: flex; align-items: center; gap: 12px; }
@@ -156,24 +156,25 @@
             border-radius: 6px;
         }
 
-        /* 큼직한 QR코드 (초고속 인식용 화이트 존 확보) */
+        /* 넉넉한 화이트존 확보한 QR 박스 */
         .qr-box-outer {
             background: #ffffff;
             padding: 6px;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
             display: inline-block;
         }
         #qrcode {
-            width: 80px;
-            height: 80px;
+            width: 88px;
+            height: 88px;
         }
         #qrcode img, #qrcode canvas {
             display: block;
-            width: 80px !important;
-            height: 80px !important;
+            width: 88px !important;
+            height: 88px !important;
         }
 
-        /* 20문제 배치 (줄간격 78px 상하 완벽 대칭) */
+        /* 20문제 배치 (줄간격 78px 상하 대칭) */
         .sheet-problems {
             flex: 1;
             display: grid;
@@ -205,6 +206,7 @@
             flex-shrink: 0;
         }
 
+        /* 인쇄 전용 CSS */
         @media print {
             body { background: #fff !important; }
             #sidebar, .top-bar { display: none !important; }
@@ -219,6 +221,7 @@
                 page-break-inside: avoid;
             }
             .qr-box-outer {
+                border: none !important;
                 padding: 0 !important;
             }
             @page {
@@ -272,16 +275,7 @@
 
     <script>
         let currentUnit = '4-2-adv';
-
-        // 시드 기반 난수 생성기 (Mulberry32 알고리즘)
-        function createRNG(seed) {
-            return function() {
-                seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-                let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-                return ((t ^ t >>> 14) >>> 0) / 4294967296;
-            };
-        }
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
         function selectUnit(e, unitKey) {
             currentUnit = unitKey;
@@ -304,23 +298,22 @@
             generateSheet();
         }
 
-        function getProblemByRNG(unitKey, idx, rng) {
-            const rand = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
+        function getProblem(unitKey, idx) {
             let prob = '', ans = '';
 
             if (unitKey === '4-2-adv') {
                 if (idx <= 3) {
                     let a = rand(200, 850), b = rand(20, 95);
                     prob = `${a} × ${b} =`;
-                    ans = (a * b).toLocaleString();
+                    ans = `${a * b}`;
                 } else if (idx === 4) {
                     let a = [12, 14, 15, 16, 24, 25][rand(0, 5)], b = [4, 5, 6, 8][rand(0, 3)], c = rand(150, 350);
                     prob = `${a} × ${b} × ${c} =`;
-                    ans = (a * b * c).toLocaleString();
+                    ans = `${a * b * c}`;
                 } else if (idx === 5) {
                     let a = rand(2500, 7500), b = rand(30, 85);
                     prob = `${a} × ${b} =`;
-                    ans = (a * b).toLocaleString();
+                    ans = `${a * b}`;
                 } else if (idx <= 10) {
                     let b = rand(25, 88), q = rand(4, 25), r = rand(0, b - 1);
                     let a = (b * q) + r;
@@ -329,24 +322,24 @@
                 } else if (idx === 11) {
                     let a = rand(500, 899), b = rand(400, 799), c = rand(200, 550);
                     prob = `${a} + ${b} - ${c} =`;
-                    ans = (a + b - c).toLocaleString();
+                    ans = `${a + b - c}`;
                 } else if (idx <= 14) {
                     let a = rand(3500, 6500), b = rand(500, 890), c = rand(400, 890);
                     prob = `${a} - ${b} + ${c} =`;
-                    ans = (a - b + c).toLocaleString();
+                    ans = `${a - b + c}`;
                 } else if (idx <= 17) {
                     let a = rand(6000, 8500), b = rand(1200, 3200), c = rand(1500, 2800);
                     prob = `${a} - (${b} + ${c}) =`;
-                    ans = (a - (b + c)).toLocaleString();
+                    ans = `${a - (b + c)}`;
                 } else {
                     let a = rand(42000, 78000), b = rand(15000, 28000), c = rand(12000, 24000);
                     prob = `${a.toLocaleString()} - ${b.toLocaleString()} + ${c.toLocaleString()} =`;
-                    ans = (a - b + c).toLocaleString();
+                    ans = `${a - b + c}`;
                 }
             } else if (unitKey === '4-2-mul') {
                 let a = rand(150, 950), b = rand(15, 95);
                 prob = `${a} × ${b} =`;
-                ans = (a * b).toLocaleString();
+                ans = `${a * b}`;
             } else if (unitKey === '4-2-div') {
                 let b = rand(15, 85), q = rand(5, 30), r = rand(0, b - 1);
                 let a = (b * q) + r;
@@ -355,26 +348,24 @@
             } else if (unitKey === '4-2-mix') {
                 let a = rand(2000, 8000), b = rand(500, 1800), c = rand(300, 1200);
                 prob = `${a} - (${b} + ${c}) =`;
-                ans = (a - (b + c)).toLocaleString();
+                ans = `${a - (b + c)}`;
             } else {
                 let a = rand(40000, 80000), b = rand(10000, 30000), c = rand(5000, 15000);
                 prob = `${a.toLocaleString()} + ${b.toLocaleString()} - ${c.toLocaleString()} =`;
-                ans = (a + b - c).toLocaleString();
+                ans = `${a + b - c}`;
             }
 
             return { prob, ans };
         }
 
         function generateSheet() {
-            // 매번 6자리 난수 시드 생성
-            const seed = Math.floor(Math.random() * 900000) + 100000;
-            const rng = createRNG(seed);
-
             const container = document.getElementById('problemContainer');
             container.innerHTML = '';
+            let rawAnswers = [];
 
             for (let i = 1; i <= 20; i++) {
-                const { prob } = getProblemByRNG(currentUnit, i, rng);
+                const { prob, ans } = getProblem(currentUnit, i);
+                rawAnswers.push(ans);
 
                 const div = document.createElement('div');
                 div.className = 'prob-row';
@@ -382,19 +373,20 @@
                 container.appendChild(div);
             }
 
-            // QR에는 오직 ?u=단원&s=시드 만 전달 (글자수가 초미니로 줄어들어 도트가 엄청 커짐)
+            // QR코드 생성
             const qrBox = document.getElementById('qrcode');
             qrBox.innerHTML = '';
-            
-            const answerUrl = `https://lay0210-bit.github.io/math-answers/viewer.html?u=${currentUnit}&s=${seed}`;
+
+            const ansParam = encodeURIComponent(rawAnswers.join('|'));
+            const answerUrl = `https://lay0210-bit.github.io/math-answers/viewer.html?a=${ansParam}&u=${currentUnit}`;
 
             new QRCode(qrBox, {
                 text: answerUrl,
-                width: 80,
-                height: 80,
+                width: 88,
+                height: 88,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.L // 가장 큰 왕도트 모드
+                correctLevel: QRCode.CorrectLevel.M
             });
         }
 
