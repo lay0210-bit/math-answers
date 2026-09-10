@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일일 연산 수학 - 맞춤 연산 문제지</title>
+    <!-- QR코드 실시간 생성 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-sidebar: #f8fafc;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; }
+        body { background: #cbd5e1; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* 좌측 단원 선택 사이드바 */
+        #sidebar {
+            width: 320px;
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100%;
+        }
+
+        .site-title {
+            padding: 20px;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .grade-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #64748b;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            padding-left: 6px;
+        }
+        .grade-title:first-child { margin-top: 0; }
+
+        .unit-btn {
+            width: 100%;
+            text-align: left;
+            padding: 11px 14px;
+            margin-bottom: 6px;
+            background: var(--bg-sidebar);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .unit-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .unit-btn.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
+
+        /* 우측 시험지 프리뷰 영역 */
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .unit-heading {
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .btn-group { display: flex; gap: 10px; }
+        .btn {
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .btn-reload { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+        .btn-reload:hover { background: #e2e8f0; }
+        .btn-print { background: var(--primary); color: #ffffff; }
+        .btn-print:hover { background: var(--primary-dark); }
+
+        .sheet-container {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .a4-paper {
+            width: 210mm;
+            min-height: 297mm;
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            padding: 18mm 18mm 15mm 18mm;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 15px;
+            margin-bottom: 24px;
+        }
+
+        .sheet-header-left { display: flex; align-items: center; gap: 12px; }
+        .sheet-title { font-size: 1.45rem; font-weight: 900; letter-spacing: -0.5px; }
+        .sheet-badge {
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .sheet-qr { width: 62px; height: 62px; }
+
+        /* 세로 2열 배치 (1~10번 왼쪽 세로, 11~20번 오른쪽 세로) */
+        .sheet-problems {
+            flex: 1;
+            display: grid;
+            grid-template-rows: repeat(10, 68px);
+            grid-auto-flow: column;
+            column-gap: 50px;
+        }
+
+        .prob-row {
+            display: flex;
+            align-items: center;
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .prob-num {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            border: 1.4px solid #000;
+            border-radius: 50%;
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        /* 인쇄 전용 스타일: A4 맞춤 및 상단 바/메뉴 숨김 */
+        @media print {
+            body { background: #fff; }
+            #sidebar, .top-bar { display: none !important; }
+            #main-content { overflow: visible; height: auto; }
+            .sheet-container { padding: 0; }
+            .a4-paper {
+                box-shadow: none;
+                padding: 10mm 15mm;
+                width: 100%;
+                height: 100%;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="site-title">✏️ 나만의 일일 수학</div>
+        <div class="category-list">
+            <div class="grade-title">초등 4학년 2학기</div>
+            <button class="unit-btn active" onclick="selectUnit(event, '4-2-adv')">4-2. 연산 총괄 심화 (20문항)</button>
+            <button class="unit-btn" onclick="selectUnit(event, '4-2-mul')">4-2. (세 자리 수) × (두 자리 수)</button>
+            <button class="unit-btn" onclick="selectUnit(event, '4-2-div')">4-2. (두·세 자리 수) ÷ (두 자리 수)</button>
+            <button class="unit-btn" onclick="selectUnit(event, '4-2-mix')">4-2. 덧셈과 뺄셈의 혼합 계산</button>
+
+            <div class="grade-title">초등 4학년 1학기</div>
+            <button class="unit-btn" onclick="selectUnit(event, '4-1-big')">4-1. 큰 수의 덧셈과 뺄셈</button>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div class="top-bar">
+            <div class="unit-heading" id="currentUnitTitle">&lt;4학년 2학기&gt; [심화]</div>
+            <div class="btn-group">
+                <button class="btn btn-reload" onclick="generateSheet()">🔄 다른 문제 풀기</button>
+                <button class="btn btn-print" onclick="window.print()">🖨️ 시험지 인쇄</button>
+            </div>
+        </div>
+
+        <div class="sheet-container">
+            <div class="a4-paper">
+                <div class="sheet-header">
+                    <div class="sheet-header-left">
+                        <span class="sheet-title" id="paperTitle">&lt;4학년 2학기&gt;</span>
+                        <span class="sheet-badge" id="paperBadge">[심화]</span>
+                    </div>
+                    <div id="qrcode" class="sheet-qr"></div>
+                </div>
+
+                <div class="sheet-problems" id="problemContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUnit = '4-2-adv';
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        function selectUnit(e, unitKey) {
+            currentUnit = unitKey;
+            document.querySelectorAll('.unit-btn').forEach(btn => btn.classList.remove('active'));
+            if (e && e.target) e.target.classList.add('active');
+
+            const titleMap = {
+                '4-2-adv': { title: '<4학년 2학기>', badge: '[심화]' },
+                '4-2-mul': { title: '<4학년 2학기>', badge: '[곱셈 특화]' },
+                '4-2-div': { title: '<4학년 2학기>', badge: '[나눗셈 특화]' },
+                '4-2-mix': { title: '<4학년 2학기>', badge: '[혼합 계산]' },
+                '4-1-big': { title: '<4학년 1학기>', badge: '[큰 수 연산]' }
+            };
+
+            const info = titleMap[unitKey] || { title: '<수학 연산>', badge: '[심화]' };
+            document.getElementById('currentUnitTitle').innerText = `${info.title} ${info.badge}`;
+            document.getElementById('paperTitle').innerText = info.title;
+            document.getElementById('paperBadge').innerText = info.badge;
+
+            generateSheet();
+        }
+
+        function getProblem(unitKey, idx) {
+            let prob = '', ans = '';
+
+            if (unitKey === '4-2-adv') {
+                if (idx <= 3) {
+                    let a = rand(200, 850), b = rand(20, 95);
+                    prob = `${a} × ${b} =`;
+                    ans = (a * b).toLocaleString();
+                } else if (idx === 4) {
+                    let a = [12, 14, 15, 16, 24, 25][rand(0, 5)], b = [4, 5, 6, 8][rand(0, 3)], c = rand(150, 350);
+                    prob = `${a} × ${b} × ${c} =`;
+                    ans = (a * b * c).toLocaleString();
+                } else if (idx === 5) {
+                    let a = rand(2500, 7500), b = rand(30, 85);
+                    prob = `${a} × ${b} =`;
+                    ans = (a * b).toLocaleString();
+                } else if (idx <= 10) {
+                    let b = rand(25, 88), q = rand(4, 25), r = rand(0, b - 1);
+                    let a = (b * q) + r;
+                    prob = `${a} ÷ ${b} =`;
+                    ans = r > 0 ? `${q} … ${r}` : `${q}`;
+                } else if (idx === 11) {
+                    let a = rand(500, 899), b = rand(400, 799), c = rand(200, 550);
+                    prob = `${a} + ${b} - ${c} =`;
+                    ans = (a + b - c).toLocaleString();
+                } else if (idx <= 14) {
+                    let a = rand(3500, 6500), b = rand(500, 890), c = rand(400, 890);
+                    prob = `${a} - ${b} + ${c} =`;
+                    ans = (a - b + c).toLocaleString();
+                } else if (idx <= 17) {
+                    let a = rand(6000, 8500), b = rand(1200, 3200), c = rand(1500, 2800);
+                    prob = `${a} - (${b} + ${c}) =`;
+                    ans = (a - (b + c)).toLocaleString();
+                } else {
+                    let a = rand(42000, 78000), b = rand(15000, 28000), c = rand(12000, 24000);
+                    prob = `${a.toLocaleString()} - ${b.toLocaleString()} + ${c.toLocaleString()} =`;
+                    ans = (a - b + c).toLocaleString();
+                }
+            } else if (unitKey === '4-2-mul') {
+                let a = rand(150, 950), b = rand(15, 95);
+                prob = `${a} × ${b} =`;
+                ans = (a * b).toLocaleString();
+            } else if (unitKey === '4-2-div') {
+                let b = rand(15, 85), q = rand(5, 30), r = rand(0, b - 1);
+                let a = (b * q) + r;
+                prob = `${a} ÷ ${b} =`;
+                ans = r > 0 ? `${q} … ${r}` : `${q}`;
+            } else if (unitKey === '4-2-mix') {
+                let a = rand(2000, 8000), b = rand(500, 1800), c = rand(300, 1200);
+                prob = `${a} - (${b} + ${c}) =`;
+                ans = (a - (b + c)).toLocaleString();
+            } else {
+                let a = rand(40000, 80000), b = rand(10000, 30000), c = rand(5000, 15000);
+                prob = `${a.toLocaleString()} + ${b.toLocaleString()} - ${c.toLocaleString()} =`;
+                ans = (a + b - c).toLocaleString();
+            }
+
+            return { prob, ans };
+        }
+
+        function generateSheet() {
+            const container = document.getElementById('problemContainer');
+            container.innerHTML = '';
+            let answers = [];
+
+            for (let i = 1; i <= 20; i++) {
+                const { prob, ans } = getProblem(currentUnit, i);
+                answers.push(ans);
+
+                const div = document.createElement('div');
+                div.className = 'prob-row';
+                div.innerHTML = `<span class="prob-num">${i}</span><span>${prob}</span>`;
+                container.appendChild(div);
+            }
+
+            // QR 코드 생성 (모바일 viewer.html로 파라미터 전달)
+            const qrBox = document.getElementById('qrcode');
+            qrBox.innerHTML = '';
+            const encAns = encodeURIComponent(answers.join('^'));
+            
+            // 현재 저장소의 viewer.html 위치를 자동으로 계산
+            const baseUrl = window.location.href.split('?')[0].replace('index.html', '');
+            const cleanBase = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+            const answerUrl = `${cleanBase}viewer.html?a=${encAns}`;
+
+            new QRCode(qrBox, {
+                text: answerUrl,
+                width: 62,
+                height: 62,
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        window.onload = generateSheet;
+    </script>
+</body>
+</html>
