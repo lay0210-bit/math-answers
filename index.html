@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>일일 연산 수학 - 맞춤 연산 문제지</title>
-    <!-- 고해상도 QR코드 생성 라이브러리 -->
+    <!-- QR 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
@@ -18,7 +18,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; }
         body { background: #cbd5e1; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* 좌측 단원 선택 사이드바 */
+        /* 좌측 사이드바 */
         #sidebar {
             width: 320px;
             background: #ffffff;
@@ -116,7 +116,7 @@
         .btn-print { background: var(--primary); color: #ffffff; }
         .btn-print:hover { background: var(--primary-dark); }
 
-        /* A4 시험지 영역 (상하 대칭 및 인쇄 정밀 규격) */
+        /* A4 시험지 영역 */
         .sheet-container {
             flex: 1;
             padding: 30px;
@@ -129,7 +129,7 @@
             height: 297mm;
             background: #ffffff;
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            padding: 22mm 20mm 20mm 20mm; /* 상·하 여백 균형 맞춤 */
+            padding: 20mm 20mm 20mm 20mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -140,40 +140,42 @@
         .sheet-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             border-bottom: 2px solid #0f172a;
             padding-bottom: 12px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
-        .sheet-header-left { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
-        .sheet-title { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; }
+        .sheet-header-left { display: flex; align-items: center; gap: 12px; }
+        .sheet-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; }
         .sheet-badge {
             background: #0f172a;
             color: #ffffff;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 700;
             padding: 5px 12px;
             border-radius: 6px;
         }
 
-        /* QR코드 컨테이너 (도트 번짐 방지 및 선명도 극대화) */
-        .qr-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* ★ QR코드 테두리 영역 (카메라 인식 필수 흰색 여백 8px 보장) */
+        .qr-box-outer {
+            background: #ffffff;
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            display: inline-block;
         }
         #qrcode {
-            width: 72px;
-            height: 72px;
+            width: 75px;
+            height: 75px;
         }
         #qrcode img, #qrcode canvas {
-            width: 72px !important;
-            height: 72px !important;
-            image-rendering: pixelated; /* 인쇄 시 도트 뭉개짐 방지 */
+            display: block;
+            width: 75px !important;
+            height: 75px !important;
         }
 
-        /* 20문제 배치 (줄간격 78px로 대폭 확장, 상하 꽉 찬 대칭 구조) */
+        /* 20문제 배치 (상하 완벽 대칭 78px 줄간격) */
         .sheet-problems {
             flex: 1;
             display: grid;
@@ -186,7 +188,7 @@
         .prob-row {
             display: flex;
             align-items: center;
-            font-size: 1.25rem; /* 글씨 시원하게 확대 */
+            font-size: 1.25rem;
             font-weight: 700;
             color: #000000;
         }
@@ -219,9 +221,13 @@
                 page-break-after: avoid;
                 page-break-inside: avoid;
             }
+            .qr-box-outer {
+                border: none !important; /* 인쇄 시 외곽선 숨기고 여백만 유지 */
+                padding: 4px !important;
+            }
             @page {
                 size: A4 portrait;
-                margin: 0; /* 브라우저 기본 머리글/바닥글 제거 */
+                margin: 0;
             }
         }
     </style>
@@ -258,7 +264,7 @@
                         <span class="sheet-title" id="paperTitle">&lt;4학년 2학기&gt;</span>
                         <span class="sheet-badge" id="paperBadge">[심화]</span>
                     </div>
-                    <div class="qr-wrapper">
+                    <div class="qr-box-outer">
                         <div id="qrcode"></div>
                     </div>
                 </div>
@@ -368,22 +374,22 @@
                 container.appendChild(div);
             }
 
-            // QR코드 생성 최적화 (인식률 향상을 위한 고해상도 렌더링)
+            // ★ QR 데이터 최적화 (글자수 대폭 축소 -> 도트 크기 2배 확대 & 초고속 인식)
             const qrBox = document.getElementById('qrcode');
             qrBox.innerHTML = '';
             
-            // 데이터 길이를 단축해 도트 크기 극대화 (구분자 | 사용)
-            const encAns = encodeURIComponent(answers.join('|'));
-            const answerUrl = `https://lay0210-bit.github.io/math-answers/viewer.html?a=${encAns}`;
+            // 쉼표(,)를 뺀 순수 데이터로 묶어 URL 길이 최소화
+            const compactAns = answers.map(a => a.replace(/,/g, '')).join('^');
+            const answerUrl = `https://lay0210-bit.github.io/math-answers/viewer.html?a=${encodeURIComponent(compactAns)}`;
 
-            // 내부 캔버스를 180x180으로 고해상도 생성 후 CSS 72px로 축소 (선명도 보존)
+            // Error Correction Level을 L(Low)로 낮춰 도트를 훨씬 큼직하게 구성
             new QRCode(qrBox, {
                 text: answerUrl,
-                width: 180,
-                height: 180,
+                width: 75,
+                height: 75,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
+                correctLevel: QRCode.CorrectLevel.L
             });
         }
 
