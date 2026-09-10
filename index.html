@@ -116,7 +116,7 @@
         .btn-print { background: var(--primary); color: #ffffff; }
         .btn-print:hover { background: var(--primary-dark); }
 
-        /* 사진 원본 A4 정밀 규격 (210mm x 297mm) */
+        /* A4 정밀 규격 (위쪽 1.2cm, 아래쪽 2.5cm 반영) */
         .sheet-container {
             flex: 1;
             padding: 30px;
@@ -129,26 +129,26 @@
             height: 297mm;
             background: #ffffff;
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            padding: 24mm 19mm 22mm 19mm; /* 원본 사진 완벽 여백 */
+            padding: 12mm 19mm 25mm 19mm; /* 상단 1.2cm, 좌우 1.9cm, 하단 2.5cm */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
         }
 
-        /* 헤더: 구분선 없이 사진 원본 그대로 */
+        /* 헤더 */
         .sheet-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 22px;
+            margin-bottom: 18px;
         }
 
         .sheet-header-left {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 14px;
+            margin-top: 10px;
         }
 
         .sheet-title {
@@ -167,7 +167,7 @@
             border-radius: 5px;
         }
 
-        /* 큼직하고 단순한 QR 코드 (사진과 동일한 위치/크기) */
+        /* QR 코드 */
         .qr-wrapper {
             background: #ffffff;
             padding: 0;
@@ -183,7 +183,7 @@
             height: 76px !important;
         }
 
-        /* 문제 20개 레이아웃 (줄간격 72px, 좌우 간격 사진과 완벽 일치) */
+        /* 20문제 배치 (줄간격 72px) */
         .sheet-problems {
             flex: 1;
             display: grid;
@@ -196,7 +196,7 @@
         .prob-row {
             display: flex;
             align-items: center;
-            font-size: 1.15rem; /* 사진과 동일한 또렷한 글씨 크기 */
+            font-size: 1.15rem;
             font-weight: 700;
             color: #000000;
         }
@@ -215,7 +215,7 @@
             flex-shrink: 0;
         }
 
-        /* 인쇄 전용 CSS */
+        /* 인쇄 시에도 정확히 위쪽 1.2cm, 아래쪽 2.5cm 유지 */
         @media print {
             body { background: #fff !important; }
             #sidebar, .top-bar { display: none !important; }
@@ -223,7 +223,7 @@
             .sheet-container { padding: 0 !important; margin: 0 !important; }
             .a4-paper {
                 box-shadow: none !important;
-                padding: 24mm 19mm 22mm 19mm !important;
+                padding: 12mm 19mm 25mm 19mm !important; /* 인쇄 시 1.2cm / 2.5cm */
                 width: 210mm !important;
                 height: 297mm !important;
                 page-break-after: avoid;
@@ -390,7 +390,7 @@
                 container.appendChild(div);
             }
 
-            // QR코드 생성 (초압축 URL로 도트 밀도를 1/3 수준으로 대폭 축소)
+            // 초압축 QR코드 생성
             const qrBox = document.getElementById('qrcode');
             qrBox.innerHTML = '';
 
@@ -403,7 +403,7 @@
                 height: 76,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.L // 가장 큼직하고 단순한 왕도트
+                correctLevel: QRCode.CorrectLevel.L
             });
         }
 
