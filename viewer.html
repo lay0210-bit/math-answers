@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>정답 확인</title>
+    <title>4학년 2학기 [심화] 정답</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; background: #f8fafc; margin: 0; padding: 14px; color: #1e293b; }
         .card { max-width: 440px; margin: auto; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
@@ -29,97 +29,53 @@
         }
         .num { color: #2563eb; font-weight: 800; font-size: 1.05rem; }
         .ans { color: #dc2626; font-weight: 800; font-size: 1.02rem; }
-        .debug-box { margin-top: 15px; padding: 10px; background: #fee2e2; border-radius: 8px; font-size: 0.8rem; color: #b91c1c; word-break: break-all; }
     </style>
 </head>
 <body>
     <div class="card">
         <div class="header">
             <span class="title-main">&lt;4학년 2학기&gt;</span>
-            <span class="badge">[정답표]</span>
+            <span class="badge">[심화]</span>
         </div>
         <div class="grid" id="ans-grid"></div>
-        <div id="debug-info" class="debug-box" style="display:none;"></div>
     </div>
 
     <script>
         const circled = ["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪","⑫","⑬","⑭","⑮","⑯","⑰","⑱","⑲","⑳"];
+        const B64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
 
-        // 1. URL 파라미터 파싱
-        const urlParams = new URLSearchParams(window.location.search);
-        let aParam = urlParams.get('a') || urlParams.get('ans');
-        let sParam = urlParams.get('s') || urlParams.get('seed');
-        let uParam = urlParams.get('u') || urlParams.get('unit') || '4-2-adv';
-
-        const grid = document.getElementById('ans-grid');
-        let rendered = false;
-
-        // 방식 A: 직접 정답 데이터가 들어온 경우 (가장 확실함)
-        if (aParam) {
-            const list = aParam.split('|');
-            list.forEach((val, idx) => {
-                if (idx >= 20) return;
-                let formatted = val.trim();
-                // 숫자일 경우 3자리 쉼표 자동 서식
-                if (!isNaN(formatted) && formatted !== '') {
-                    formatted = Number(formatted).toLocaleString();
-                }
-                const div = document.createElement('div');
-                div.className = 'item';
-                div.innerHTML = `<span class="num">${circled[idx]}</span><span class="ans">${formatted}</span>`;
-                grid.appendChild(div);
-            });
-            rendered = true;
-        } 
-        // 방식 B: 시드 번호가 들어온 경우 (자동 계산 복원)
-        else if (sParam) {
-            const seed = parseInt(sParam);
-            function createRNG(s) {
-                return function() {
-                    s |= 0; s = s + 0x6D2B79F5 | 0;
-                    let t = Math.imul(s ^ s >>> 15, 1 | s);
-                    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-                    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-                };
+        function b64ToNum(s) {
+            let n = 0;
+            for (let i = 0; i < s.length; i++) {
+                n = n * 64 + B64.indexOf(s[i]);
             }
-            const rng = createRNG(seed);
-            const rand = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
-
-            for (let i = 1; i <= 20; i++) {
-                let ans = '';
-                if (i <= 3) {
-                    ans = (rand(200, 850) * rand(20, 95)).toLocaleString();
-                } else if (i === 4) {
-                    let a = [12, 14, 15, 16, 24, 25][rand(0, 5)], b = [4, 5, 6, 8][rand(0, 3)], c = rand(150, 350);
-                    ans = (a * b * c).toLocaleString();
-                } else if (i === 5) {
-                    ans = (rand(2500, 7500) * rand(30, 85)).toLocaleString();
-                } else if (i <= 10) {
-                    let b = rand(25, 88), q = rand(4, 25), r = rand(0, b - 1);
-                    ans = r > 0 ? `${q} … ${r}` : `${q}`;
-                } else if (i === 11) {
-                    ans = (rand(500, 899) + rand(400, 799) - rand(200, 550)).toLocaleString();
-                } else if (i <= 14) {
-                    ans = (rand(3500, 6500) - rand(500, 890) + rand(400, 890)).toLocaleString();
-                } else if (i <= 17) {
-                    ans = (rand(6000, 8500) - (rand(1200, 3200) + rand(1500, 2800))).toLocaleString();
-                } else {
-                    ans = (rand(42000, 78000) - rand(15000, 28000) + rand(12000, 24000)).toLocaleString();
-                }
-
-                const div = document.createElement('div');
-                div.className = 'item';
-                div.innerHTML = `<span class="num">${circled[i - 1]}</span><span class="ans">${ans}</span>`;
-                grid.appendChild(div);
-            }
-            rendered = true;
+            return n;
         }
 
-        // 데이터가 전혀 안 들어온 경우 안내 표시
-        if (!rendered) {
-            const debug = document.getElementById('debug-info');
-            debug.style.display = 'block';
-            debug.innerHTML = `⚠️ 전달된 정답 정보가 없습니다.<br>수신 URL: ${window.location.search || '(없음)'}`;
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('d');
+        const grid = document.getElementById('ans-grid');
+
+        if (data) {
+            const tokens = data.split('.');
+            tokens.forEach((tk, idx) => {
+                if (idx >= 20) return;
+                let ansText = "";
+                if (tk.includes('r')) {
+                    const parts = tk.split('r');
+                    const q = b64ToNum(parts[0]);
+                    const r = b64ToNum(parts[1]);
+                    ansText = `${q} … ${r}`;
+                } else {
+                    const val = b64ToNum(tk);
+                    ansText = val.toLocaleString();
+                }
+
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `<span class="num">${circled[idx]}</span><span class="ans">${ansText}</span>`;
+                grid.appendChild(div);
+            });
         }
     </script>
 </body>
